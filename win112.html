@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Windows 11 Deployment - Technical Blueprint</title>
+    <style>
+        :root {
+            --primary-accent: #6c5ce7;
+            --secondary-accent: #00d2d3;
+            --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            --main-container-bg: #ffffff;
+            --dark-card-bg: #1e1b4b;
+            --text-on-white: #2d3436;
+            --text-on-dark: #f1f2f6;
+            --path-highlight: #55efc4;
+            --warning-red: #ff7675;
+            --info-blue: #0984e3;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-gradient);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 950px;
+            width: 100%;
+            background: var(--main-container-bg);
+            padding: 50px;
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        h1 {
+            color: var(--primary-accent);
+            font-size: 2.8em;
+            margin: 0;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: var(--text-on-white);
+            font-size: 1.2em;
+            font-weight: 500;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        .prep-zone {
+            background: #f0f3ff;
+            border: 2px solid var(--primary-accent);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            color: var(--text-on-white);
+        }
+
+        .prep-zone h2 {
+            margin-top: 0;
+            color: var(--primary-accent);
+            font-size: 1.4em;
+        }
+
+        .step-card {
+            background: var(--dark-card-bg);
+            margin-bottom: 25px;
+            padding: 30px;
+            border-radius: 18px;
+            color: var(--text-on-dark);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            border-right: 8px solid var(--secondary-accent);
+            transition: all 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateX(10px);
+            background: #25225d;
+        }
+
+        .step-badge {
+            background: var(--secondary-accent);
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.8em;
+            font-weight: 800;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .step-title {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: var(--path-highlight);
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .cmd-box {
+            background: #000;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            color: #00ff00;
+            font-size: 0.9em;
+            overflow-x: auto;
+            border: 1px solid var(--path-highlight);
+            margin: 15px 0;
+        }
+
+        .warning-zone {
+            background: #fff5f5;
+            border-left: 5px solid var(--warning-red);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #d63031;
+        }
+
+        .info-zone {
+            background: #e1f5fe;
+            border-left: 5px solid var(--info-blue);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #01579b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            color: var(--text-on-dark);
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        th {
+            background: rgba(108, 92, 231, 0.3);
+            color: var(--secondary-accent);
+        }
+
+        .footer-tips {
+            background: #f8f9fa;
+            border-top: 4px solid var(--primary-accent);
+            padding: 30px;
+            border-radius: 0 0 15px 15px;
+            margin-top: 20px;
+        }
+
+        .signature {
+            margin-top: 40px;
+            text-align: center;
+            color: #fff;
+            font-style: italic;
+            font-size: 1.1em;
+            opacity: 0.8;
+            letter-spacing: 1px;
+        }
+
+        strong { color: var(--secondary-accent); }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        @media (max-width: 600px) {
+            .container { padding: 25px; }
+            h1 { font-size: 1.8em; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🔒 Windows 11 Installation</h1>
+        <p class="subtitle">TPM 2.0 & UEFI System Preparation Guide</p>
+    </header>
+
+    <div class="prep-zone">
+        <h2>⚡ Essential Pre-Flight Check</h2>
+        <ul style="list-style: none; padding: 0;">
+            <li><strong>📂 Partition:</strong> Check MBR/GPT table. If MBR, convert to <strong>GPT</strong> immediately. This is a hard requirement for UEFI booting and Windows 11 compatibility.</li>
+            <li><strong>🔐 TPM Version:</strong> If version is 1.2, you <strong>MUST clear the 1.2 state</strong> in BIOS/Windows before attempting an upgrade to 2.0. Version 2.0 is the official standard.</li>
+            <li><strong>💾 Firmware:</strong> Update BIOS to the latest version. In specific cases (like Dell), you may need an <strong>incremental update path</strong> (installing a lower version before the final TPM 2.0 update).</li>
+            <li><strong>📜 Registry:</strong> Prepare the bypass batch file/command to inject into the installer if using unsupported hardware (CPU/RAM checks).</li>
+            <li><strong>🖥️ BIOS Mode:</strong> Switch Boot Mode to <strong>UEFI</strong>. Legacy/CSM is no longer supported for Windows 11.</li>
+        </ul>
+    </div>
+
+    <div class="step-card">
+        <div class="step-badge">Phase 1</div>
+        <span class="step-title">💽 Hard Drive Partition Conversion (MBR to GPT)</span>
+        <p>Windows 11 requires GPT. Do not confuse this with "Chat GPT" — this is your disk's internal logic!</p>
+        
+        <h3>1. Check Current Status</h3>
+        <ul>
+            <li>Right-click <strong>Start</strong> > <strong>Disk Management</strong>.</li>
+            <li>Right-click your Boot Disk (e.g., "Disk 0") > <strong>Properties</strong> > <strong>Volumes</strong>.</li>
+            <li>Check <strong>Partition style</strong>. If it is MBR, you must convert.</li>
+        </ul>
+
+        <h3>2. Detailed Conversion Steps</h3>
+        <ol>
+            <li>Open <strong>Command Prompt (Admin)</strong>.</li>
+            <li>Run validation: <div class="cmd-box">mbr2gpt /validate /allowFullOS</div></li>
+            <li>Run conversion: <div class="cmd-box">mbr2gpt /convert /allowFullOS</div></li>
+            <li><strong>Important:</strong> Immediately restart and switch your BIOS to <strong>UEFI mode</strong> or the system won't boot!</li>
+        </ol>
+    </div>
+
+    <div class="step-card">
+        <div class="step-badge">Phase 2</div>
+        <span class="step-title">🔑 Getting Your BitLocker Recovery Key</span>
+        <p>Before clearing TPM 1.2, you <strong>must</strong> secure your 48-digit recovery key or you will be locked out of your data permanently.</p>
+        
+        <div class="info-zone">
+            <h4>Check these locations:</h4>
+            <ul>
+                <li><strong>Microsoft Account:</strong> Visit <a href="https://account.microsoft.com/devices/recoverykey" target="_blank">account.microsoft.com/devices/recoverykey</a> on a phone or other PC.</li>
+                <li><strong>Command Prompt:</strong> Run <code style="color:#000">manage-bde -protectors -get C:</code> to see your key while logged in.</li>
+                <li><strong>Active Directory:</strong> Check your company's IT portal if it's a work device.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-badge">Phase 3</div>
+        <span class="step-title">⚙️ BIOS Update & TPM 2.0 Configuration</span>
+        <p>Update your firmware and enable the security chip.</p>
+        <ul>
+            <li><strong>BIOS Flash:</strong> Download latest firmware. Format USB as <strong>FAT32</strong>. Use the BIOS flash utility (F12 on Dell).</li>
+            <li><strong>TPM 1.2 Clear:</strong> If on 1.2, clear it in BIOS or via <code>tpm.msc</code> before toggling 2.0.</li>
+            <li><strong>PTT/fTPM:</strong> In BIOS, look for <strong>Intel Platform Trust Technology (PTT)</strong> or <strong>AMD fTPM</strong> and set to <strong>Enabled</strong>.</li>
+        </ul>
+    </div>
+
+    <div class="step-card">
+        <div class="step-badge">Phase 4</div>
+        <span class="step-title">🛡️ Enabling Secure Boot Process</span>
+        <p>Secure Boot ensures only trusted software boots on your device.</p>
+        <ol>
+            <li>Restart and enter BIOS (see keys below).</li>
+            <li>Navigate to the <strong>Boot</strong> or <strong>Security</strong> tab.</li>
+            <li>Locate <strong>Secure Boot</strong> and set it to <strong>Enabled</strong>.</li>
+            <li>If "Disabled" and greyed out, set a <strong>BIOS Supervisor/Admin Password</strong> first.</li>
+            <li>Save and Exit (usually <strong>F10</strong>).</li>
+        </ol>
+    </div>
+
+    <div class="step-card">
+        <div class="step-badge">Phase 5</div>
+        <span class="step-title">🚀 Registry Bypass (Unattended Installation)</span>
+        <p>Force the installer to ignore CPU and TPM checks.</p>
+        <ol>
+            <li>Boot from Win11 USB. At the language screen, press <strong>Shift + F10</strong>.</li>
+            <li>Type this exact command to bypass requirements:</li>
+        </ol>
+        <div class="cmd-box">reg add HKLM\SYSTEM\Setup\MoSetup /v AllowUpgradesWithUnsupportedTPMOrCPU /t REG_DWORD /d 1 /f</div>
+    </div>
+
+    <div class="step-card" style="border-right-color: var(--warning-red);">
+        <div class="step-badge" style="background: var(--warning-red); color: white;">Emergency Recovery</div>
+        <span class="step-title">🆘 BIOS Reset Guide (The Jumper Method)</span>
+        <p>If your system fails to boot after settings changes, you must reset the CMOS.</p>
+        
+        <h3>1. Mandatory Safety & Drive Prep ⚠️</h3>
+        <ul>
+            <li><strong>Disconnect ALL Storage Drives:</strong> Unplug SATA cables or remove M.2 SSDs to protect data.</li>
+            <li><strong>Power Down:</strong> Unplug the PSU and hold the power button for 15s to discharge electricity.</li>
+        </ul>
+
+        <h3>2. The Jumper Reset Procedure</h3>
+        <p>Find the 2 or 3 pins labeled <strong>CLR_CMOS</strong> or <strong>JBAT1</strong> near the coin battery.</p>
+        
+        <table>
+            <tr>
+                <th>Jumper Type</th>
+                <th>Reset Procedure</th>
+            </tr>
+            <tr>
+                <td><strong>3-Pin Layout</strong></td>
+                <td>Move jumper from Pins 1-2 to <strong>Pins 2-3</strong>. Wait 15 seconds. Move it back to <strong>Pins 1-2</strong>.</td>
+            </tr>
+            <tr>
+                <td><strong>2-Pin Layout</strong></td>
+                <td>Use a screwdriver or jumper cap to <strong>short (connect)</strong> the two pins for 15 seconds. Remove the bridge.</td>
+            </tr>
+        </table>
+        <p><em>*Note: If no jumper exists, remove the silver <strong>CR2032 Coin Battery</strong> for 10 minutes.</em></p>
+    </div>
+
+    <div class="footer-tips">
+        <h3>⌨️ Hardware Access Keys</h3>
+        <p>Press these keys immediately after power-on to access settings:</p>
+        <table>
+            <tr style="color:var(--text-on-white)">
+                <th>Manufacturer</th>
+                <th>BIOS Setup Key</th>
+                <th>Boot Menu Key</th>
+            </tr>
+            <tr style="color:var(--text-on-white)">
+                <td><strong>Dell (Optiplex/Precision)</strong></td>
+                <td>F2</td>
+                <td>F12</td>
+            </tr>
+            <tr style="color:var(--text-on-white)">
+                <td><strong>HP (EliteDesk/Z-Workstation)</strong></td>
+                <td>F10 / Esc</td>
+                <td>F9</td>
+            </tr>
+            <tr style="color:var(--text-on-white)">
+                <td><strong>Lenovo (ThinkPad/Station)</strong></td>
+                <td>F1 / F2</td>
+                <td>F12</td>
+            </tr>
+            <tr style="color:var(--text-on-white)">
+                <td><strong>Custom Motherboards</strong></td>
+                <td>DEL / F2</td>
+                <td>F8 / F12</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="signature">
+    Crafted & Designed by Umer Malik
+</div>
+
+</body>
+</html>
